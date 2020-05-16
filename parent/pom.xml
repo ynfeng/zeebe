@@ -62,6 +62,7 @@
     <version.msgpack>0.8.20</version.msgpack>
     <version.netty-tcnative>2.0.30.Final</version.netty-tcnative>
     <version.objenesis>3.1</version.objenesis>
+    <version.opencensus>0.26.0</version.opencensus>
     <version.prometheus>0.9.0</version.prometheus>
     <version.protobuf>3.12.0</version.protobuf>
     <version.rocksdbjni>6.8.1</version.rocksdbjni>
@@ -166,11 +167,13 @@
         <artifactId>jackson-databind</artifactId>
         <version>${version.jackson}</version>
       </dependency>
+
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
         <version>${version.jackson}</version>
       </dependency>
+
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
@@ -189,6 +192,53 @@
         <version>${version.msgpack}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-api</artifactId>
+        <version>${version.opencensus}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.api</groupId>
+        <artifactId>api-common</artifactId>
+        <version>1.8.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.auth</groupId>
+        <artifactId>google-auth-library-oauth2-http</artifactId>
+        <version>0.16.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.api.grpc</groupId>
+        <artifactId>proto-google-common-protos</artifactId>
+        <version>1.17.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.auth</groupId>
+        <artifactId>google-auth-library-credentials</artifactId>
+        <version>0.20.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-impl</artifactId>
+        <version>${version.opencensus}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-exporter-trace-stackdriver</artifactId>
+        <version>${version.opencensus}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-census</artifactId>
+        <version>${version.grpc}</version>
+      </dependency>
 
       <dependency>
         <groupId>junit</groupId>
@@ -301,6 +351,12 @@
       <dependency>
         <groupId>io.grpc</groupId>
         <artifactId>grpc-stub</artifactId>
+        <version>${version.grpc}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-context</artifactId>
         <version>${version.grpc}</version>
       </dependency>
 

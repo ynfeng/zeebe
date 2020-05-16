@@ -183,22 +183,31 @@
         <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>io.zeebe</groupId>
+        <artifactId>zeebe-google-cloud</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
       <!-- ATOMIX -->
       <dependency>
         <artifactId>atomix-cluster</artifactId>
         <groupId>io.zeebe</groupId>
         <version>${project.version}</version>
       </dependency>
+
       <dependency>
         <artifactId>atomix-storage</artifactId>
         <groupId>io.zeebe</groupId>
         <version>${project.version}</version>
       </dependency>
+
       <dependency>
         <artifactId>atomix-utils</artifactId>
         <groupId>io.zeebe</groupId>
         <version>${project.version}</version>
       </dependency>
+
       <dependency>
         <artifactId>atomix</artifactId>
         <groupId>io.zeebe</groupId>

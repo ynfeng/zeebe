@@ -10,11 +10,14 @@ package io.zeebe.gateway;
 import io.atomix.cluster.AtomixCluster;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
+import io.grpc.census.InternalCensusTracingAccessor;
 import io.grpc.netty.NettyServerBuilder;
 import io.zeebe.gateway.impl.broker.BrokerClient;
 import io.zeebe.gateway.impl.broker.BrokerClientImpl;
 import io.zeebe.gateway.impl.configuration.GatewayCfg;
+import io.zeebe.gateway.impl.configuration.MonitoringCfg;
 import io.zeebe.gateway.impl.configuration.NetworkCfg;
 import io.zeebe.gateway.impl.configuration.SecurityCfg;
 import io.zeebe.gateway.impl.job.LongPollingActivateJobsHandler;
@@ -24,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import me.dinowernli.grpc.prometheus.Configuration;
@@ -32,10 +37,10 @@ import org.slf4j.Logger;
 
 public final class Gateway {
   private static final Logger LOG = Loggers.GATEWAY_LOGGER;
-  private static final Function<GatewayCfg, ServerBuilder> DEFAULT_SERVER_BUILDER_FACTORY =
+  private static final Function<GatewayCfg, ServerBuilder<?>> DEFAULT_SERVER_BUILDER_FACTORY =
       cfg -> setNetworkConfig(cfg.getNetwork());
 
-  private final Function<GatewayCfg, ServerBuilder> serverBuilderFactory;
+  private final Function<GatewayCfg, ServerBuilder<?>> serverBuilderFactory;
   private final Function<GatewayCfg, BrokerClient> brokerClientFactory;
   private final GatewayCfg gatewayCfg;
   private final ActorScheduler actorScheduler;
@@ -64,7 +69,7 @@ public final class Gateway {
   public Gateway(
       final GatewayCfg gatewayCfg,
       final Function<GatewayCfg, BrokerClient> brokerClientFactory,
-      final Function<GatewayCfg, ServerBuilder> serverBuilderFactory,
+      final Function<GatewayCfg, ServerBuilder<?>> serverBuilderFactory,
       final ActorScheduler actorScheduler) {
     this.gatewayCfg = gatewayCfg;
     this.brokerClientFactory = brokerClientFactory;
@@ -93,16 +98,15 @@ public final class Gateway {
 
     final EndpointManager endpointManager = new EndpointManager(brokerClient, longPollingHandler);
 
-    final ServerBuilder serverBuilder = serverBuilderFactory.apply(gatewayCfg);
-
-    if (gatewayCfg.getMonitoring().isEnabled()) {
-      final MonitoringServerInterceptor monitoringInterceptor =
-          MonitoringServerInterceptor.create(Configuration.allMetrics());
-      serverBuilder.addService(
-          ServerInterceptors.intercept(endpointManager, monitoringInterceptor));
-    } else {
-      serverBuilder.addService(endpointManager);
+    final ServerBuilder<?> serverBuilder = serverBuilderFactory.apply(gatewayCfg);
+    final List<ServerInterceptor> interceptors = new ArrayList<>();
+    final MonitoringCfg monitoringConfig = gatewayCfg.getMonitoring();
+    if (monitoringConfig.isEnabled()) {
+      interceptors.add(MonitoringServerInterceptor.create(Configuration.allMetrics()));
+      serverBuilder.addStreamTracerFactory(
+          InternalCensusTracingAccessor.getServerStreamTracerFactory());
     }
+    serverBuilder.addService(ServerInterceptors.intercept(endpointManager, interceptors));
 
     final SecurityCfg securityCfg = gatewayCfg.getSecurity();
     if (securityCfg.isEnabled()) {

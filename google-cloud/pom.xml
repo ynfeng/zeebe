@@ -1,0 +1,103 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <name>Zeebe Google Cloud</name>
+  <artifactId>zeebe-google-cloud</artifactId>
+  <packaging>jar</packaging>
+
+  <parent>
+    <groupId>io.zeebe</groupId>
+    <artifactId>zeebe-parent</artifactId>
+    <version>0.24.0-SNAPSHOT</version>
+    <relativePath>../parent</relativePath>
+  </parent>
+
+  <dependencies>
+    <!-- Tracing -->
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-exporter-trace-stackdriver</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-impl</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Configuration and auto-discovery -->
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Logging -->
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <configuration>
+          <failOnWarning>true</failOnWarning>
+          <ignoredDependencies>
+            <!-- Needs to be present for concrete spans to be used, but is not called directly -->
+            <dependency>io.opencensus:opencensus-impl</dependency>
+          </ignoredDependencies>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+

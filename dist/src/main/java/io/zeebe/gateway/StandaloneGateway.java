@@ -117,7 +117,9 @@ public class StandaloneGateway {
     SpringApplication.run(Launcher.class, args);
   }
 
-  @SpringBootApplication(exclude = RestClientAutoConfiguration.class)
+  @SpringBootApplication(
+      exclude = RestClientAutoConfiguration.class,
+      scanBasePackages = {"io.zeebe"})
   public static class Launcher implements CommandLineRunner {
 
     @Autowired GatewayCfg configuration;

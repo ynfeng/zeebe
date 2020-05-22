@@ -82,6 +82,85 @@
       <artifactId>jackson-annotations</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Dependencies unused but provided by the distribution -->
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-netty</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.errorprone</groupId>
+      <artifactId>error_prone_annotations</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.api.grpc</groupId>
+      <artifactId>proto-google-common-protos</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -94,6 +173,21 @@
           <ignoredDependencies>
             <!-- Needs to be present for concrete spans to be used, but is not called directly -->
             <dependency>io.opencensus:opencensus-impl</dependency>
+
+            <!-- Dependencies provided by the distribution itself -->
+            <dependency>com.google.code.gson:gson</dependency>
+            <dependency>io.grpc:grpc-api</dependency>
+            <dependency>io.grpc:grpc-protobuf</dependency>
+            <dependency>com.google.protobuf:protobuf-java</dependency>
+            <dependency>io.grpc:grpc-netty</dependency>
+            <dependency>io.grpc:grpc-core</dependency>
+            <dependency>io.grpc:grpc-stub</dependency>
+            <dependency>com.google.guava:guava</dependency>
+            <dependency>com.fasterxml.jackson.core:jackson-core</dependency>
+            <dependency>com.google.errorprone:error_prone_annotations</dependency>
+            <dependency>com.google.api.grpc:proto-google-common-protos</dependency>
+            <dependency>org.apache.httpcomponents:httpclient</dependency>
+            <dependency>javax.annotation:javax.annotation-api</dependency>
           </ignoredDependencies>
         </configuration>
       </plugin>

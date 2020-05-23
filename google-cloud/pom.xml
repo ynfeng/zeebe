@@ -32,7 +32,6 @@
     </dependency>
 
     <!-- Configuration and auto-discovery -->
-
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
@@ -52,7 +51,6 @@
     </dependency>
 
     <!-- Logging -->
-
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -171,7 +169,7 @@
         <configuration>
           <failOnWarning>true</failOnWarning>
           <ignoredDependencies>
-            <!-- Needs to be present for concrete spans to be used, but is not called directly -->
+            <!-- Runtime libraries are by definition unused during compilation -->
             <dependency>io.opencensus:opencensus-impl</dependency>
 
             <!-- Dependencies provided by the distribution itself -->

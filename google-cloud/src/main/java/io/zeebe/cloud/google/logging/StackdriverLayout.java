@@ -10,10 +10,12 @@ package io.zeebe.cloud.google.logging;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.zeebe.cloud.google.logging.stackdriver.StackdriverLogEntry;
+import io.zeebe.cloud.google.logging.stackdriver.StackdriverLogEntryBuilder;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Node;
@@ -34,7 +36,13 @@ import org.apache.logging.log4j.core.util.StringBuilderWriter;
  * <p>Open points:
  *
  * <ul>
- *   <li>How to pass nested context values such as the HttpRequest field?
+ *   <li>Markers are passed label - is this a good idea?
+ *   <li>Potentially will create a lot of allocations - should we make these reusable objects?
+ *   <li>Some context special keys are extracted for tracing - is this a good idea? How to share
+ *       these special keys?
+ *   <li>The context map (except special keys) is put in a context field - should we unwrap and put
+ *       it directly in the payload? This risks overwriting special keys, but gives flexibility if
+ *       new special keys were needed until a new release is out
  * </ul>
  */
 @Plugin(name = "StackdriverLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
@@ -88,22 +96,34 @@ public final class StackdriverLayout extends AbstractStringLayout {
   }
 
   private StackdriverLogEntry buildLogEntry(final LogEvent event) {
-    final var builder = StackdriverLogEntry.builder();
+    final var builder =
+        StackdriverLogEntry.builder()
+            .withLevel(event.getLevel())
+            .withMessage(event.getMessage().getFormattedMessage())
+            .withError(event.getThrownProxy())
+            .withTime(getInstant(event.getInstant()))
+            .withSource(event.getSource())
+            .withContextEntry("threadName", event.getThreadName())
+            .withContextEntry("loggerName", event.getLoggerName())
+            .withContextEntry("threadId", event.getThreadId())
+            .withContextEntry("threadPriority", event.getThreadPriority())
+            .withDiagnosticContext(event.getContextData())
+            .withServiceName(serviceName)
+            .withServiceVersion(serviceVersion);
 
-    return builder
-        .withLevel(event.getLevel())
-        .withMessage(event.getMessage().getFormattedMessage())
-        .withError(event.getThrownProxy())
-        .withTime(getInstant(event.getInstant()))
-        .withSource(event.getSource())
-        .withContext(event.getContextData().toMap())
-        .withContextIfAbsent("threadName", event.getThreadName())
-        .withContextIfAbsent("loggerName", event.getLoggerName())
-        .withContextIfAbsent("threadId", event.getThreadId())
-        .withContextIfAbsent("threadPriority", event.getThreadPriority())
-        .withServiceName(serviceName)
-        .withServiceVersion(serviceVersion)
-        .build();
+    final var marker = event.getMarker();
+    if (marker != null) {
+      applyMarkerLabel(builder, marker);
+    }
+
+    return builder.build();
+  }
+
+  private void applyMarkerLabel(final StackdriverLogEntryBuilder builder, final Marker marker) {
+    builder.withLabel(String.format("log4j2.marker.%s", marker.getName()));
+    for (final var parent : marker.getParents()) {
+      applyMarkerLabel(builder, parent);
+    }
   }
 
   private Instant getInstant(final org.apache.logging.log4j.core.time.Instant instant) {

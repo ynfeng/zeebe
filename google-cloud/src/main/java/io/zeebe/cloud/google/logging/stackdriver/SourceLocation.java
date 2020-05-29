@@ -16,7 +16,10 @@ final class SourceLocation {
   @JsonProperty("function")
   private String methodName;
 
+  @JsonProperty("file")
   private String file;
+
+  @JsonProperty("line")
   private int line;
 
   SourceLocation(final StackTraceElement traceElement) {

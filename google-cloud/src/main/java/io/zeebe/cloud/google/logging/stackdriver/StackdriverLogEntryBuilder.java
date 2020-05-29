@@ -9,11 +9,14 @@ package io.zeebe.cloud.google.logging.stackdriver;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.impl.ThrowableProxy;
+import org.apache.logging.log4j.util.ReadOnlyStringMap;
 
 public final class StackdriverLogEntryBuilder {
   private static final String TYPE_REPORTING_EVENT =
@@ -21,8 +24,8 @@ public final class StackdriverLogEntryBuilder {
 
   private final ServiceContext service;
   private final Map<String, Object> context;
+  private final List<Label> labels;
 
-  private HttpRequest request;
   private SourceLocation sourceLocation;
   private Level level;
   private String time;
@@ -30,10 +33,14 @@ public final class StackdriverLogEntryBuilder {
   private String type;
   private ThrowableProxy errorProxy;
   private StackTraceElement traceElement;
+  private String trace;
+  private String spanId;
+  private String traceSampled;
 
   StackdriverLogEntryBuilder() {
     this.service = new ServiceContext();
     this.context = new HashMap<>();
+    this.labels = new ArrayList<>();
   }
 
   public StackdriverLogEntryBuilder withLevel(final Level level) {
@@ -72,13 +79,30 @@ public final class StackdriverLogEntryBuilder {
     return this;
   }
 
-  public StackdriverLogEntryBuilder withContextIfAbsent(final String key, final Object value) {
-    this.context.putIfAbsent(key, value);
+  public StackdriverLogEntryBuilder withContextEntry(final String key, final Object value) {
+    this.context.put(key, value);
     return this;
   }
 
-  public <T> StackdriverLogEntryBuilder withContext(final Map<String, T> context) {
-    this.context.putAll(context);
+  public StackdriverLogEntryBuilder withDiagnosticContext(final ReadOnlyStringMap context) {
+    context.<String>forEach(
+        (key, value) -> {
+          switch (key) {
+            case "trace":
+              trace = value;
+              break;
+            case "spanId":
+              spanId = value;
+              break;
+            case "traceSampled":
+              traceSampled = value;
+              break;
+            default:
+              this.context.put(key, value);
+              break;
+          }
+        });
+
     return this;
   }
 
@@ -87,8 +111,26 @@ public final class StackdriverLogEntryBuilder {
     return this;
   }
 
-  public StackdriverLogEntryBuilder withHttpRequest(final HttpRequest request) {
-    this.request = request;
+  public StackdriverLogEntryBuilder withTrace(final String trace) {
+    this.trace = trace;
+    return this;
+  }
+
+  public StackdriverLogEntryBuilder withSpanId(final String spanId) {
+    this.spanId = spanId;
+    return this;
+  }
+
+  public StackdriverLogEntryBuilder withTraceSampled(final String traceSampled) {
+    this.traceSampled = traceSampled;
+    return this;
+  }
+
+  public StackdriverLogEntryBuilder withLabel(final String labelValue) {
+    final var label = new Label();
+    label.setLabelValue(labelValue);
+
+    this.labels.add(label);
     return this;
   }
 
@@ -96,30 +138,35 @@ public final class StackdriverLogEntryBuilder {
     final StackdriverLogEntry stackdriverLogEntry = new StackdriverLogEntry();
 
     if (errorProxy != null) {
-      final var errorTraceElements = errorProxy.getStackTrace();
-      message = errorProxy.getExtendedStackTraceAsString();
-      type = TYPE_REPORTING_EVENT;
-      level = Level.ERROR;
-
-      if (errorTraceElements != null && errorTraceElements.length > 0) {
-        context.putIfAbsent("reportLocation", new SourceLocation(errorTraceElements[0]));
-      }
+      applyErrorProxy();
     }
 
     if (traceElement != null) {
       sourceLocation = new SourceLocation(traceElement);
     }
 
-    stackdriverLogEntry.setRequest(request);
     stackdriverLogEntry.setLevel(level.name());
     stackdriverLogEntry.setSourceLocation(sourceLocation);
     stackdriverLogEntry.setTime(time);
     stackdriverLogEntry.setMessage(Objects.requireNonNull(message));
-    stackdriverLogEntry.setRequest(request);
     stackdriverLogEntry.setType(type);
     stackdriverLogEntry.setService(service);
     stackdriverLogEntry.setContext(context);
+    stackdriverLogEntry.setTrace(trace);
+    stackdriverLogEntry.setSpanId(spanId);
+    stackdriverLogEntry.setTraceSampled(traceSampled);
 
     return stackdriverLogEntry;
+  }
+
+  private void applyErrorProxy() {
+    final var errorTraceElements = errorProxy.getStackTrace();
+    message = errorProxy.getExtendedStackTraceAsString();
+    type = TYPE_REPORTING_EVENT;
+    level = Level.ERROR;
+
+    if (errorTraceElements != null && errorTraceElements.length > 0) {
+      context.putIfAbsent("reportLocation", new SourceLocation(errorTraceElements[0]));
+    }
   }
 }

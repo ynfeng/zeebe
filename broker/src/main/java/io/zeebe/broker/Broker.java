@@ -27,11 +27,13 @@ import io.zeebe.broker.system.EmbeddedGatewayService;
 import io.zeebe.broker.system.SystemContext;
 import io.zeebe.broker.system.configuration.BrokerCfg;
 import io.zeebe.broker.system.configuration.ClusterCfg;
+import io.zeebe.broker.system.configuration.DataCfg;
 import io.zeebe.broker.system.configuration.NetworkCfg;
 import io.zeebe.broker.system.configuration.backpressure.BackpressureCfg;
 import io.zeebe.broker.system.management.LeaderManagementRequestHandler;
 import io.zeebe.broker.system.management.deployment.PushDeploymentRequestHandler;
 import io.zeebe.broker.system.monitoring.BrokerHealthCheckService;
+import io.zeebe.broker.system.monitoring.DiskSpaceUsageMonitor;
 import io.zeebe.broker.system.partitions.TypedRecordProcessorsFactory;
 import io.zeebe.broker.system.partitions.ZeebePartition;
 import io.zeebe.broker.system.partitions.impl.AtomixPartitionMessagingService;
@@ -84,6 +86,7 @@ public final class Broker implements AutoCloseable {
   private ServerTransport serverTransport;
   private BrokerHealthCheckService healthCheckService;
   private Map<Integer, ZeebeIndexAdapter> partitionIndexes;
+  private DiskSpaceUsageMonitor diskSpaceUsageMonitor;
   private final SpringBrokerBridge springBrokerBridge;
 
   public Broker(final SystemContext systemContext, final SpringBrokerBridge springBrokerBridge) {
@@ -174,7 +177,8 @@ public final class Broker implements AutoCloseable {
     startContext.addStep("cluster services", () -> atomix.start().join());
     startContext.addStep("topology manager", () -> topologyManagerStep(clusterCfg, localBroker));
     startContext.addStep(
-        "monitoring services", () -> monitoringServerStep(networkCfg, localBroker));
+        "monitoring services",
+        () -> monitoringServerStep(networkCfg, brokerCfg.getData(), localBroker));
     startContext.addStep(
         "leader management request handler", () -> managementRequestStep(localBroker));
     startContext.addStep(
@@ -288,13 +292,18 @@ public final class Broker implements AutoCloseable {
   }
 
   private AutoCloseable monitoringServerStep(
-      final NetworkCfg networkCfg, final BrokerInfo localBroker) {
+      final NetworkCfg networkCfg, final DataCfg data, final BrokerInfo localBroker) {
     healthCheckService = new BrokerHealthCheckService(localBroker, atomix);
     springBrokerBridge.registerBrokerHealthCheckServiceSupplier(() -> healthCheckService);
     partitionListeners.add(healthCheckService);
     scheduleActor(healthCheckService);
 
-    return () -> healthCheckService.close();
+    diskSpaceUsageMonitor = new DiskSpaceUsageMonitor(data);
+    scheduleActor(diskSpaceUsageMonitor);
+    return () -> {
+      healthCheckService.close();
+      diskSpaceUsageMonitor.close();
+    };
   }
 
   private AutoCloseable managementRequestStep(final BrokerInfo localBroker) {
@@ -344,6 +353,7 @@ public final class Broker implements AutoCloseable {
             scheduleActor(zeebePartition);
             healthCheckService.registerMonitoredPartition(
                 owningPartition.id().id(), zeebePartition);
+            diskSpaceUsageMonitor.addDiskUsageListener(zeebePartition);
             return zeebePartition;
           });
     }

@@ -56,7 +56,7 @@ final class CommandApiRequestHandler implements RequestHandler {
 
   private final Map<ValueType, UnpackedObject> recordsByType = new EnumMap<>(ValueType.class);
   private final BackpressureMetrics metrics;
-  private boolean isDiskSpaceAvailable;
+  private boolean isDiskSpaceAvailable = true;
   private int oodErrorMsgCount = 0;
 
   CommandApiRequestHandler() {

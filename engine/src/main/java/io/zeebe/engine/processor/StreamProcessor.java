@@ -58,7 +58,7 @@ public class StreamProcessor extends Actor implements HealthMonitorable {
   private final String actorName;
   private FailureListener failureListener;
   private volatile long lastTickTime;
-  private boolean shouldProcess;
+  private boolean shouldProcess = true;
 
   protected StreamProcessor(final StreamProcessorBuilder processorBuilder) {
     this.actorScheduler = processorBuilder.getActorScheduler();
@@ -353,6 +353,7 @@ public class StreamProcessor extends Actor implements HealthMonitorable {
             lifecycleAwareListeners.forEach(StreamProcessorLifecycleAware::onResumed);
             this.shouldProcess = true;
             phase = Phase.PAUSED;
+            actor.submit(processingStateMachine::readNextEvent);
           }
         });
   }

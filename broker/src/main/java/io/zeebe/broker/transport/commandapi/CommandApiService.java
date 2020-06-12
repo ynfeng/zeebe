@@ -9,6 +9,7 @@ package io.zeebe.broker.transport.commandapi;
 
 import io.zeebe.broker.Loggers;
 import io.zeebe.broker.PartitionListener;
+import io.zeebe.broker.system.monitoring.DiskSpaceUsageListener;
 import io.zeebe.broker.transport.backpressure.PartitionAwareRequestLimiter;
 import io.zeebe.broker.transport.backpressure.RequestLimiter;
 import io.zeebe.engine.processor.CommandResponseWriter;
@@ -22,10 +23,10 @@ import io.zeebe.util.sched.Actor;
 import io.zeebe.util.sched.future.ActorFuture;
 import io.zeebe.util.sched.future.CompletableActorFuture;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import org.agrona.collections.IntHashSet;
 
-public final class CommandApiService extends Actor implements PartitionListener {
+public final class CommandApiService extends Actor
+    implements PartitionListener, DiskSpaceUsageListener {
 
   private final PartitionAwareRequestLimiter limiter;
   private final ServerTransport serverTransport;
@@ -36,11 +37,10 @@ public final class CommandApiService extends Actor implements PartitionListener 
   public CommandApiService(
       final ServerTransport serverTransport,
       final BrokerInfo localBroker,
-      final PartitionAwareRequestLimiter limiter,
-      final Supplier<Boolean> isDiskSpaceAvailable) {
+      final PartitionAwareRequestLimiter limiter) {
     this.serverTransport = serverTransport;
     this.limiter = limiter;
-    requestHandler = new CommandApiRequestHandler(isDiskSpaceAvailable);
+    requestHandler = new CommandApiRequestHandler();
     this.actorName = buildActorName(localBroker.getNodeId(), "CommandApiService");
   }
 
@@ -118,5 +118,15 @@ public final class CommandApiService extends Actor implements PartitionListener 
         partitionLimiter.onResponse(typedRecord.getRequestStreamId(), typedRecord.getRequestId());
       }
     };
+  }
+
+  @Override
+  public void onDiskSpaceUsageIncreasedAboveThreshold() {
+    requestHandler.onDiskUsageAboveThreshold();
+  }
+
+  @Override
+  public void onDiskSpaceUsageReducedBelowThreshold() {
+    requestHandler.onDiskUsageBelowThreshold();
   }
 }

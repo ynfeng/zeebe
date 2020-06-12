@@ -33,7 +33,6 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import org.agrona.DirectBuffer;
 import org.agrona.collections.Int2ObjectHashMap;
 import org.agrona.concurrent.ManyToOneConcurrentLinkedQueue;
@@ -57,10 +56,10 @@ final class CommandApiRequestHandler implements RequestHandler {
 
   private final Map<ValueType, UnpackedObject> recordsByType = new EnumMap<>(ValueType.class);
   private final BackpressureMetrics metrics;
-  private final Supplier<Boolean> isDiskSpaceAvailable;
+  private boolean isDiskSpaceAvailable;
+  private int oodErrorMsgCount = 0;
 
-  CommandApiRequestHandler(final Supplier<Boolean> isDiskSpaceAvailable) {
-    this.isDiskSpaceAvailable = isDiskSpaceAvailable;
+  CommandApiRequestHandler() {
     this.metrics = new BackpressureMetrics();
     initEventTypeMap();
   }
@@ -149,8 +148,11 @@ final class CommandApiRequestHandler implements RequestHandler {
       return;
     }
 
-    if (!isDiskSpaceAvailable.get()) {
-      LOG.debug("Out of disk space. Rejecting requests");
+    if (!isDiskSpaceAvailable) {
+      if (oodErrorMsgCount % 1000 == 0) {
+        LOG.debug("Out of disk space. Rejecting requests");
+      }
+      oodErrorMsgCount++;
       limiter.onIgnore(partitionId, requestId);
       errorResponseWriter.resourceExhausted().tryWriteResponse(output, partitionId, requestId);
       return;
@@ -208,6 +210,18 @@ final class CommandApiRequestHandler implements RequestHandler {
         () -> {
           leadingStreams.remove(partitionId);
           partitionLimiters.remove(partitionId);
+        });
+  }
+
+  void onDiskUsageAboveThreshold() {
+    cmdQueue.add(() -> this.isDiskSpaceAvailable = false);
+  }
+
+  void onDiskUsageBelowThreshold() {
+    cmdQueue.add(
+        () -> {
+          this.isDiskSpaceAvailable = true;
+          oodErrorMsgCount = 0;
         });
   }
 

@@ -33,6 +33,7 @@ import io.zeebe.broker.system.configuration.backpressure.BackpressureCfg;
 import io.zeebe.broker.system.management.LeaderManagementRequestHandler;
 import io.zeebe.broker.system.management.deployment.PushDeploymentRequestHandler;
 import io.zeebe.broker.system.monitoring.BrokerHealthCheckService;
+import io.zeebe.broker.system.monitoring.DiskSpaceUsageListener;
 import io.zeebe.broker.system.monitoring.DiskSpaceUsageMonitor;
 import io.zeebe.broker.system.partitions.TypedRecordProcessorsFactory;
 import io.zeebe.broker.system.partitions.ZeebePartition;
@@ -48,7 +49,6 @@ import io.zeebe.logstreams.storage.atomix.ZeebeIndexAdapter;
 import io.zeebe.protocol.impl.encoding.BrokerInfo;
 import io.zeebe.transport.ServerTransport;
 import io.zeebe.transport.TransportFactory;
-import io.zeebe.util.ByteValue;
 import io.zeebe.util.LogUtil;
 import io.zeebe.util.SocketUtil;
 import io.zeebe.util.VersionUtil;
@@ -57,7 +57,6 @@ import io.zeebe.util.sched.Actor;
 import io.zeebe.util.sched.ActorControl;
 import io.zeebe.util.sched.ActorScheduler;
 import io.zeebe.util.sched.clock.ActorClock;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,8 +85,9 @@ public final class Broker implements AutoCloseable {
   private ServerTransport serverTransport;
   private BrokerHealthCheckService healthCheckService;
   private Map<Integer, ZeebeIndexAdapter> partitionIndexes;
-  private DiskSpaceUsageMonitor diskSpaceUsageMonitor;
+  private final List<DiskSpaceUsageListener> diskSpaceUsageListeners = new ArrayList<>();
   private final SpringBrokerBridge springBrokerBridge;
+  private DiskSpaceUsageMonitor diskSpaceUsageMonitor;
 
   public Broker(final SystemContext systemContext, final SpringBrokerBridge springBrokerBridge) {
     this.brokerContext = systemContext;
@@ -247,25 +247,13 @@ public final class Broker implements AutoCloseable {
       limiter = PartitionAwareRequestLimiter.newLimiter(backpressureCfg);
     }
 
-    commandHandler =
-        new CommandApiService(
-            serverTransport, localBroker, limiter, () -> isDiskSpaceAvailable(brokerCfg));
+    commandHandler = new CommandApiService(serverTransport, localBroker, limiter);
     partitionListeners.add(commandHandler);
     scheduleActor(commandHandler);
 
-    return commandHandler;
-  }
+    diskSpaceUsageListeners.add(commandHandler);
 
-  private boolean isDiskSpaceAvailable(final BrokerCfg brokerCfg) {
-    final var directory = new File(brokerCfg.getData().getDirectories().get(0));
-    final boolean available = directory.getUsableSpace() >= ByteValue.ofGigabytes(4);
-    if (!available) {
-      LOG.debug(
-          "Out of disk space. Current available {}. Minimum needed {}",
-          directory.getUsableSpace(),
-          ByteValue.ofGigabytes(4));
-    }
-    return available;
+    return commandHandler;
   }
 
   private AutoCloseable subscriptionAPIStep(final BrokerInfo localBroker) {
@@ -300,6 +288,7 @@ public final class Broker implements AutoCloseable {
 
     diskSpaceUsageMonitor = new DiskSpaceUsageMonitor(data);
     scheduleActor(diskSpaceUsageMonitor);
+    diskSpaceUsageListeners.forEach(l -> diskSpaceUsageMonitor.addDiskUsageListener(l));
     return () -> {
       healthCheckService.close();
       diskSpaceUsageMonitor.close();

@@ -42,34 +42,34 @@ public final class JobTimeoutTrigger implements StreamProcessorLifecycleAware {
 
   @Override
   public void onClose() {
-    if (timer != null) {
-      timer.cancel();
-      timer = null;
-    }
+    cancelTimer();
   }
 
   @Override
   public void onFailed() {
-    if (timer != null) {
-      timer.cancel();
-      timer = null;
-    }
+    cancelTimer();
   }
 
   @Override
   public void onPaused() {
-    if (timer != null) {
-      timer.cancel();
-      timer = null;
-    }
+    cancelTimer();
   }
 
   @Override
   public void onResumed() {
-    timer =
-        processingContext
-            .getActor()
-            .runAtFixedRate(TIME_OUT_POLLING_INTERVAL, this::deactivateTimedOutJobs);
+    if (timer == null) {
+      timer =
+          processingContext
+              .getActor()
+              .runAtFixedRate(TIME_OUT_POLLING_INTERVAL, this::deactivateTimedOutJobs);
+    }
+  }
+
+  private void cancelTimer() {
+    if (timer != null) {
+      timer.cancel();
+      timer = null;
+    }
   }
 
   void deactivateTimedOutJobs() {

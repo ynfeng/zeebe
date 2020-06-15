@@ -105,11 +105,14 @@ public class DueDateTimerChecker implements StreamProcessorLifecycleAware {
   public void onPaused() {
     if (scheduledTimer != null) {
       scheduledTimer.cancel();
+      scheduledTimer = null;
     }
   }
 
   @Override
   public void onResumed() {
-    triggerTimers();
+    if (scheduledTimer == null) {
+      triggerTimers();
+    }
   }
 }

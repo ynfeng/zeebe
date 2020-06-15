@@ -22,10 +22,10 @@ public class DiskSpaceUsageMonitor extends Actor {
   private static final Duration DISK_USAGE_CHECK_DELAY = Duration.ofSeconds(10);
   private final List<DiskSpaceUsageListener> diskSpaceUsageListeners = new ArrayList<>();
   private boolean currentDiskAvailableStatus = true;
-  private final DataCfg brokerCfg;
+  private final DataCfg dataCfg;
 
-  public DiskSpaceUsageMonitor(final DataCfg brokerCfg) {
-    this.brokerCfg = brokerCfg;
+  public DiskSpaceUsageMonitor(final DataCfg dataCfg) {
+    this.dataCfg = dataCfg;
   }
 
   @Override
@@ -34,8 +34,8 @@ public class DiskSpaceUsageMonitor extends Actor {
   }
 
   private void checkDiskUsageAndNotifyListeners() {
-    final long diskSpaceUsage = getDiskSpaceUsage(brokerCfg);
-    final boolean available = diskSpaceUsage >= ByteValue.ofGigabytes(4);
+    final long diskSpaceUsage = getDiskSpaceUsage(dataCfg);
+    final boolean available = diskSpaceUsage >= dataCfg.getHighFreeDiskSpaceWatermarkInBytes();
     if (currentDiskAvailableStatus != available) {
       currentDiskAvailableStatus = available;
       if (!available) {

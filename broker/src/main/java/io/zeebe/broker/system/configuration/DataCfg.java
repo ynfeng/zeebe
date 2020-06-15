@@ -19,6 +19,8 @@ import org.springframework.util.unit.DataSize;
 public final class DataCfg implements ConfigurationEntry {
   public static final String DEFAULT_DIRECTORY = "data";
   private static final DataSize DEFAULT_DATA_SIZE = DataSize.ofMegabytes(512);
+  private static final DataSize DEFAULT_LOW_FREE_DISKSPACE_WATERMARK = DataSize.ofGigabytes(1);
+  private static final DataSize DEFAULT_HIGH_FREE_DISKSPACE_WATERMARK = DataSize.ofGigabytes(2);
 
   // Hint: do not use Collections.singletonList as this does not support replaceAll
   private List<String> directories = Arrays.asList(DEFAULT_DIRECTORY);
@@ -30,6 +32,8 @@ public final class DataCfg implements ConfigurationEntry {
   private int logIndexDensity = 100;
 
   private boolean useMmap = false;
+  private DataSize lowFreeDiskSpaceWatermark = DEFAULT_LOW_FREE_DISKSPACE_WATERMARK;
+  private DataSize highFreeDiskSpaceWatermark = DEFAULT_HIGH_FREE_DISKSPACE_WATERMARK;
 
   @Override
   public void init(final BrokerCfg globalConfig, final String brokerBase) {
@@ -83,6 +87,34 @@ public final class DataCfg implements ConfigurationEntry {
 
   public StorageLevel getAtomixStorageLevel() {
     return useMmap() ? StorageLevel.MAPPED : StorageLevel.DISK;
+  }
+
+  public DataSize getHighFreeDiskSpaceWatermark() {
+    return highFreeDiskSpaceWatermark;
+  }
+
+  public void setHighFreeDiskSpaceWatermark(final DataSize highFreeDiskSpaceWatermark) {
+    this.highFreeDiskSpaceWatermark = highFreeDiskSpaceWatermark;
+  }
+
+  public long getHighFreeDiskSpaceWatermarkInBytes() {
+    return Optional.ofNullable(highFreeDiskSpaceWatermark)
+        .orElse(DEFAULT_HIGH_FREE_DISKSPACE_WATERMARK)
+        .toBytes();
+  }
+
+  public DataSize getLowFreeDiskSpaceWatermark() {
+    return this.lowFreeDiskSpaceWatermark;
+  }
+
+  public void setLowFreeDiskSpaceWatermark(final DataSize lowFreeDiskSpaceWatermark) {
+    this.lowFreeDiskSpaceWatermark = lowFreeDiskSpaceWatermark;
+  }
+
+  public long getLowFreeDiskSpaceWatermarkInBytes() {
+    return Optional.ofNullable(lowFreeDiskSpaceWatermark)
+        .orElse(DEFAULT_LOW_FREE_DISKSPACE_WATERMARK)
+        .toBytes();
   }
 
   @Override

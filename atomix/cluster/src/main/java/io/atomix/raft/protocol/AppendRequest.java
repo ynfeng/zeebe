@@ -40,6 +40,7 @@ public class AppendRequest extends AbstractRaftRequest {
   private final long prevLogIndex;
   private final long prevLogTerm;
   private final List<RaftLogEntry> entries;
+  private final List<Long> checksums;
   private final long commitIndex;
 
   public AppendRequest(
@@ -48,12 +49,14 @@ public class AppendRequest extends AbstractRaftRequest {
       final long prevLogIndex,
       final long prevLogTerm,
       final List<RaftLogEntry> entries,
+      final List<Long> checksums,
       final long commitIndex) {
     this.term = term;
     this.leader = leader;
     this.prevLogIndex = prevLogIndex;
     this.prevLogTerm = prevLogTerm;
     this.entries = entries;
+    this.checksums = checksums;
     this.commitIndex = commitIndex;
   }
 
@@ -112,6 +115,15 @@ public class AppendRequest extends AbstractRaftRequest {
   }
 
   /**
+   * Returns the checksums for the log entries.
+   *
+   * @return A list of checksums
+   */
+  public List<Long> checksums() {
+    return checksums;
+  }
+
+  /**
    * Returns the leader's commit index.
    *
    * @return The leader commit index.
@@ -159,6 +171,7 @@ public class AppendRequest extends AbstractRaftRequest {
     private long logIndex;
     private long logTerm;
     private List<RaftLogEntry> entries;
+    private List<Long> checksums;
     private long commitIndex = -1;
 
     /**
@@ -236,15 +249,8 @@ public class AppendRequest extends AbstractRaftRequest {
       return this;
     }
 
-    /**
-     * Adds an entry to the request.
-     *
-     * @param entry The entry to add.
-     * @return The request builder.
-     * @throws NullPointerException if {@code entry} is {@code null}
-     */
-    public Builder addEntry(final RaftLogEntry entry) {
-      this.entries.add(checkNotNull(entry, "entry"));
+    public Builder withChecksums(final List<Long> checksums) {
+      this.checksums = checkNotNull(checksums, "checksums cannot be null");
       return this;
     }
 
@@ -268,7 +274,7 @@ public class AppendRequest extends AbstractRaftRequest {
     @Override
     public AppendRequest build() {
       validate();
-      return new AppendRequest(term, leader, logIndex, logTerm, entries, commitIndex);
+      return new AppendRequest(term, leader, logIndex, logTerm, entries, checksums, commitIndex);
     }
 
     @Override
@@ -279,6 +285,7 @@ public class AppendRequest extends AbstractRaftRequest {
       checkArgument(logIndex >= 0, "prevLogIndex must be positive");
       checkArgument(logTerm >= 0, "prevLogTerm must be positive");
       checkNotNull(entries, "entries cannot be null");
+      checkNotNull(checksums, "checksums cannot be null");
       checkArgument(commitIndex >= 0, "commitIndex must be positive");
     }
   }

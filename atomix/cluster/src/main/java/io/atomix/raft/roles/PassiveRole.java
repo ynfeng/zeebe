@@ -20,6 +20,7 @@ import io.atomix.raft.RaftError;
 import io.atomix.raft.RaftServer;
 import io.atomix.raft.impl.RaftContext;
 import io.atomix.raft.metrics.SnapshotReplicationMetrics;
+import io.atomix.raft.partition.impl.RaftNamespaces;
 import io.atomix.raft.protocol.AppendRequest;
 import io.atomix.raft.protocol.AppendResponse;
 import io.atomix.raft.protocol.InstallRequest;
@@ -45,8 +46,11 @@ import io.atomix.raft.storage.log.entry.RaftLogEntry;
 import io.atomix.storage.StorageException;
 import io.atomix.storage.journal.Indexed;
 import io.atomix.utils.concurrent.ThreadContext;
+import io.atomix.utils.serializer.Namespace;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
+import java.util.zip.CRC32;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.slf4j.Logger;
 
@@ -56,12 +60,18 @@ public class PassiveRole extends InactiveRole {
 
   private long pendingSnapshotStartTimestamp;
   private ReceivedSnapshot pendingSnapshot;
+  private final CRC32 checksumGenerator = new CRC32();
+  private final Namespace namespace;
+  private final ByteBuffer buffer;
 
   public PassiveRole(final RaftContext context) {
     super(context);
 
     this.snapshotReplicationMetrics = new SnapshotReplicationMetrics(context.getName());
     this.snapshotReplicationMetrics.setCount(0);
+    final int maxEntrySize = context.getStorage().getMaxEntrySize();
+    this.buffer = ByteBuffer.allocate(maxEntrySize);
+    this.namespace = RaftNamespaces.RAFT_PROTOCOL;
   }
 
   @Override
@@ -410,6 +420,10 @@ public class PassiveRole extends InactiveRole {
       return future;
     }
 
+    if (!checkChecksums(request, future)) {
+      return future;
+    }
+
     // Append the entries to the log.
     appendEntries(request, future);
     return future;
@@ -430,6 +444,15 @@ public class PassiveRole extends InactiveRole {
     return true;
   }
 
+  protected boolean checkChecksums(
+      final AppendRequest request, final CompletableFuture<AppendResponse> future) {
+    if (request.entries().size() != request.checksums().size()) {
+      log.debug("Rejected {}: expected the same number of checksums as entries", request);
+      return failAppend(raft.getLogWriter().getLastIndex(), future);
+    }
+
+    return true;
+  }
   /**
    * Checks the previous index of the given AppendRequest, returning a boolean indicating whether to
    * continue handling the request.
@@ -553,12 +576,18 @@ public class PassiveRole extends InactiveRole {
       }
 
       // Iterate through entries and append them.
-      for (final RaftLogEntry entry : request.entries()) {
+      for (int i = 0; i < request.entries().size(); ++i) {
         final long index = ++lastLogIndex;
+        final RaftLogEntry entry = request.entries().get(i);
+        final long checksum = request.checksums().get(i);
 
         // Get the last entry written to the log by the writer.
         final Indexed<RaftLogEntry> lastEntry = writer.getLastEntry();
 
+        if (checkEntryChecksum(entry, checksum)) {
+          log.debug("Rejected {}: entry does not match the corresponding checksum", request);
+          failAppend(index - 1, future);
+        }
         final boolean failedToAppend = tryToAppend(future, writer, reader, entry, index, lastEntry);
         if (failedToAppend) {
           return;
@@ -584,6 +613,16 @@ public class PassiveRole extends InactiveRole {
 
     // Return a successful append response.
     succeedAppend(lastLogIndex, future);
+  }
+
+  private boolean checkEntryChecksum(final RaftLogEntry entry, final long checksum) {
+    buffer.clear();
+    namespace.serialize(entry, buffer);
+    buffer.flip();
+
+    checksumGenerator.reset();
+    checksumGenerator.update(buffer);
+    return checksum == checksumGenerator.getValue();
   }
 
   private boolean tryToAppend(

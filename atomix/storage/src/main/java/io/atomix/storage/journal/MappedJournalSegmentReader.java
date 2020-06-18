@@ -177,7 +177,7 @@ class MappedJournalSegmentReader<E> implements JournalReader<E> {
       if (checksum == crc32.getValue()) {
         slice.rewind();
         final E entry = namespace.deserialize(slice);
-        nextEntry = new Indexed<>(index, entry, length);
+        nextEntry = new Indexed<>(index, entry, length, checksum);
         buffer.position(buffer.position() + length);
       } else {
         buffer.reset();

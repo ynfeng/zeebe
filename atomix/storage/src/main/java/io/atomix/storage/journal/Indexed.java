@@ -25,11 +25,17 @@ public class Indexed<E> {
   private final long index;
   private final E entry;
   private final int size;
+  private final long checksum;
 
   public Indexed(final long index, final E entry, final int size) {
+    this(index, entry, size, -1);
+  }
+
+  public Indexed(final long index, final E entry, final int size, final long checksum) {
     this.index = index;
     this.entry = entry;
     this.size = size;
+    this.checksum = checksum;
   }
 
   /**
@@ -57,6 +63,15 @@ public class Indexed<E> {
    */
   public int size() {
     return size;
+  }
+
+  /**
+   * Returns the entry's CRC32 checksum.
+   *
+   * @return The entry's CRC32 checksum;
+   */
+  public long checksum() {
+    return checksum;
   }
 
   /**
@@ -92,11 +107,14 @@ public class Indexed<E> {
       return false;
     }
     final Indexed<?> indexed = (Indexed<?>) o;
-    return index == indexed.index && size == indexed.size && Objects.equals(entry, indexed.entry);
+    return index == indexed.index
+        && size == indexed.size
+        && Objects.equals(entry, indexed.entry)
+        && checksum == indexed.checksum;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(index, entry, size);
+    return Objects.hash(index, entry, size, checksum);
   }
 }

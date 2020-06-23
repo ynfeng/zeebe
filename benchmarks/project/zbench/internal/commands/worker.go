@@ -15,12 +15,18 @@ package commands
 
 import (
 	"context"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/spf13/cobra"
 	"github.com/zeebe-io/zeebe/clients/go/pkg/entities"
 	"github.com/zeebe-io/zeebe/clients/go/pkg/worker"
 	"log"
 	"time"
 )
+
+type jobWorkerMetricsImpl struct {
+	name string
+}
 
 var (
 	workerJobTypeFlag         string
@@ -30,6 +36,12 @@ var (
 	workerPollingDelayFlag    time.Duration
 	workerCompletionDelayFlag time.Duration
 	workerJobTimeoutFlag      time.Duration
+	workerJobMetrics          = jobWorkerMetricsImpl{name: "zbench"}
+	workerRemainingJobsCount  = promauto.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "zeebe",
+		Name:      "jobs_remaining_count",
+		Help:      "The total number of processed events",
+	}, []string{"worker", "jobType"})
 )
 
 var workerCmd = &cobra.Command{
@@ -55,6 +67,7 @@ var workerCmd = &cobra.Command{
 			PollInterval(workerPollingDelayFlag).
 			RequestTimeout(DefaultTimeout).
 			Timeout(workerJobTimeoutFlag).
+		    Metrics(workerJobMetrics).
 			Open()
 
 		jobWorker.AwaitClose()
@@ -91,4 +104,10 @@ func init() {
 	workerCmd.
 		Flags().
 		StringVar(&workerNameFlag, "name", "worker", "Specify the worker name, mostly for debugging purposes")
+}
+
+func (m jobWorkerMetricsImpl) SetJobsRemainingCount(jobType string, count int) {
+	workerRemainingJobsCount.
+		With(prometheus.Labels{"worker": m.name, "jobType": jobType}).
+		Set(float64(count))
 }

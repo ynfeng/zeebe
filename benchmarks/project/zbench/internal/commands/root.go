@@ -16,9 +16,11 @@ package commands
 
 import (
 	"fmt"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/cobra"
 	"github.com/zeebe-io/zeebe/clients/go/pkg/zbc"
+	"google.golang.org/grpc"
 	"log"
 	"net/http"
 	"os"
@@ -134,6 +136,10 @@ var initClient = func(cmd *cobra.Command, args []string) error {
 	client, err = zbc.NewClient(&zbc.ClientConfig{
 		GatewayAddress:      fmt.Sprintf("%s:%s", host, port),
 		CredentialsProvider: credsProvider,
+		DialOpts: []grpc.DialOption{
+		    grpc.WithUnaryInterceptor(grpc_prometheus.UnaryClientInterceptor),
+			grpc.WithStreamInterceptor(grpc_prometheus.StreamClientInterceptor),
+		},
 	})
 	return err
 }

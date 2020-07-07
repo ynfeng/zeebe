@@ -151,11 +151,14 @@ pipeline {
                                   extractFlakyTestReport(it);
 
                                   def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
+
+                                  if (!flakyTestReports.isEmpty()) {
+                                    junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
+                                  }
                                }
                             }
 
                             junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
-                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
                         }
                     }
                 }
@@ -182,11 +185,14 @@ pipeline {
                                   extractFlakyTestReport(it);
 
                                   def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
+
+                                  if (!flakyTestReports.isEmpty()) {
+                                    junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
+                                  }
                                }
                             }
 
                             junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
-                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
                         }
                     }
                 }
@@ -214,11 +220,14 @@ pipeline {
                                   extractFlakyTestReport(it);
 
                                   def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
+
+                                  if (!flakyTestReports.isEmpty()) {
+                                    junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
+                                  }
                                }
                             }
 
                             junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
-                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
                         }
                     }
                 }

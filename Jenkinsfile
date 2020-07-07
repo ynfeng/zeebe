@@ -145,12 +145,12 @@ pipeline {
                         always {
 
                             script {
-                               def testReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml')
+                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xmll")
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
-                                  def flakyTestReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml')
+                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
                                }
                             }
 
@@ -176,12 +176,12 @@ pipeline {
                         always {
 
                             script {
-                               def testReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml')
+                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xmll")
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
-                                  def flakyTestReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml')
+                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
                                }
                             }
 
@@ -208,12 +208,12 @@ pipeline {
                         always {
 
                             script {
-                               def testReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml')
+                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xmll")
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
-                                  def flakyTestReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml')
+                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
                                }
                             }
 

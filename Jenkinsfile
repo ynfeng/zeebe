@@ -143,21 +143,19 @@ pipeline {
 
                     post {
                         always {
-                            script {
-                               junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
 
+                            script {
                                def testReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml')
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
                                   def flakyTestReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml')
-
-                                  if (!flakyTestReports.isEmpty()) {
-                                    junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
-                                  }
                                }
                             }
+
+                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
+                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
                         }
                     }
                 }
@@ -176,21 +174,19 @@ pipeline {
 
                     post {
                         always {
-                            script {
-                               junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
 
+                            script {
                                def testReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml')
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
                                   def flakyTestReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml')
-
-                                  if (!flakyTestReports.isEmpty()) {
-                                    junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
-                                  }
                                }
                             }
+
+                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
+                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
                         }
                     }
                 }
@@ -210,21 +206,19 @@ pipeline {
 
                     post {
                         always {
-                            script {
-                               junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
 
+                            script {
                                def testReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml')
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
                                   def flakyTestReports = findFiles(glob: '**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml')
-
-                                  if (!flakyTestReports.isEmpty()) {
-                                    junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
-                                  }
                                }
                             }
+
+                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml", keepLongStdio: true
+                            junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
                         }
                     }
                 }

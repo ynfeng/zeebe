@@ -145,12 +145,12 @@ pipeline {
                         always {
 
                             script {
-                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xmll")
+                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml")
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
-                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
+                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml")
 
                                   if (!flakyTestReports.isEmpty()) {
                                     junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
@@ -179,12 +179,12 @@ pipeline {
                         always {
 
                             script {
-                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xmll")
+                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml")
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
-                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
+                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml")
 
                                   if (!flakyTestReports.isEmpty()) {
                                     junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true
@@ -214,12 +214,12 @@ pipeline {
                         always {
 
                             script {
-                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xmll")
+                               def testReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}.xml")
 
                                testReports.each {
                                   extractFlakyTestReport(it);
 
-                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xmll")
+                                  def flakyTestReports = findFiles(glob: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml")
 
                                   if (!flakyTestReports.isEmpty()) {
                                     junit testResults: "**/*/TEST*${SUREFIRE_REPORT_NAME_SUFFIX}-FLAKY.xml", keepLongStdio: true

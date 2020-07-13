@@ -37,6 +37,7 @@
     <!-- EXTERNAL LIBS -->
     <version.agrona>1.4.1</version.agrona>
     <version.animal-sniffer>1.18</version.animal-sniffer>
+    <version.awaitility>4.0.3</version.awaitility>
     <version.assertj>3.15.0</version.assertj>
     <version.camunda>7.12.0</version.camunda>
     <version.commons-lang>3.10</version.commons-lang>
@@ -206,6 +207,13 @@
         <groupId>org.assertj</groupId>
         <artifactId>assertj-core</artifactId>
         <version>${version.assertj}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>${version.awaitility}</version>
+        <scope>test</scope>
       </dependency>
 
       <dependency>

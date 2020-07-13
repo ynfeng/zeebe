@@ -170,6 +170,10 @@ public final class WorkflowInstanceSubscriptionState {
     this.messageName.wrapBuffer(messageName);
   }
 
+  public boolean isEmpty() {
+    return subscriptionColumnFamily.isEmpty() && sentTimeColumnFamily.isEmpty();
+  }
+
   @FunctionalInterface
   public interface WorkflowInstanceSubscriptionVisitor {
     boolean visit(WorkflowInstanceSubscription subscription);

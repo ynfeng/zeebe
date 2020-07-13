@@ -226,4 +226,8 @@ public final class EventScopeInstanceState {
   private void deleteTrigger(final DbCompositeKey<DbLong, DbLong> triggerKey) {
     eventTriggerColumnFamily.delete(triggerKey);
   }
+
+  public boolean isEmpty() {
+    return eventScopeInstanceColumnFamily.isEmpty() && eventTriggerColumnFamily.isEmpty();
+  }
 }

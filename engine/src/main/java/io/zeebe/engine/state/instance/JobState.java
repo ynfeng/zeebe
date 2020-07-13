@@ -323,6 +323,13 @@ public final class JobState {
     deadlinesColumnFamily.delete(deadlineJobKey);
   }
 
+  public boolean isEmpty() {
+    return jobsColumnFamily.isEmpty()
+        && statesJobColumnFamily.isEmpty()
+        && activatableColumnFamily.isEmpty()
+        && deadlinesColumnFamily.isEmpty();
+  }
+
   public enum State {
     ACTIVATABLE((byte) 0),
     ACTIVATED((byte) 1),

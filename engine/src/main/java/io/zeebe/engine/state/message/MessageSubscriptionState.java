@@ -211,6 +211,12 @@ public final class MessageSubscriptionState {
     }
   }
 
+  public boolean isEmpty() {
+    return subscriptionColumnFamily.isEmpty()
+        && messageNameAndCorrelationKeyColumnFamily.isEmpty()
+        && sentTimeColumnFamily.isEmpty();
+  }
+
   @FunctionalInterface
   public interface MessageSubscriptionVisitor {
     boolean visit(MessageSubscription subscription);

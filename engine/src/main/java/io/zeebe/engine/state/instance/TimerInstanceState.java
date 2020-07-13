@@ -112,6 +112,10 @@ public final class TimerInstanceState {
     dueDateColumnFamily.delete(dueDateCompositeKey);
   }
 
+  public boolean isEmpty() {
+    return timerInstanceColumnFamily.isEmpty() && dueDateColumnFamily.isEmpty();
+  }
+
   @FunctionalInterface
   public interface TimerVisitor {
     boolean visit(TimerInstance timer);

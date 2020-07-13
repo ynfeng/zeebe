@@ -319,6 +319,16 @@ public final class MessageState {
         }));
   }
 
+  public boolean isEmpty() {
+    return messageColumnFamily.isEmpty()
+        && messageIdColumnFamily.isEmpty()
+        && nameCorrelationMessageColumnFamily.isEmpty()
+        && workflowInstanceCorrelationKeyColumnFamiliy.isEmpty()
+        && activeWorkflowInstancesByCorrelationKeyColumnFamiliy.isEmpty()
+        && correlatedMessageColumnFamily.isEmpty()
+        && deadlineColumnFamily.isEmpty();
+  }
+
   @FunctionalInterface
   public interface MessageVisitor {
     boolean visit(Message message);

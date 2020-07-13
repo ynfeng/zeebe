@@ -93,6 +93,10 @@ public final class MessageStartEventSubscriptionState {
         });
   }
 
+  public boolean isEmpty() {
+    return subscriptionsColumnFamily.isEmpty() && subscriptionsOfWorkflowKeyColumnFamily.isEmpty();
+  }
+
   @FunctionalInterface
   public interface MessageStartEventSubscriptionVisitor {
     void visit(MessageStartEventSubscriptionRecord subscription);

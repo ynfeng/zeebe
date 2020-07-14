@@ -115,10 +115,14 @@ public class EventOccurredHandler<T extends ExecutableFlowElement> extends Abstr
       final long eventScopeKey,
       final long variableScopeKey,
       final EventTrigger event) {
-    context
-        .getElementInstanceState()
-        .getVariablesState()
-        .setTemporaryVariables(variableScopeKey, event.getVariables());
+
+    final var eventVariables = event.getVariables();
+    if (eventVariables != null && eventVariables.capacity() > 0) {
+      context
+          .getElementInstanceState()
+          .getVariablesState()
+          .setTemporaryVariables(variableScopeKey, eventVariables);
+    }
 
     context
         .getStateDb()

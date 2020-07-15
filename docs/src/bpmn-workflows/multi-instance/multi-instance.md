@@ -71,6 +71,29 @@ The input mappings can access the local variables of the instance (e.g. `inputEl
 
 The output mappings can be used to update the `outputElement` variable. For example, to extract a part of the job variables.
 
+## Concurrency considerations
+When using parallel multi-instance activities you may need to take extra care in dealing with
+variables. Inner activity instances may alter variables that are accessed by other inner activity
+instances such that race conditions can occur.
+
+For instance, say we have a service task that is marked as a parallel multi-instance. Job workers
+receive all variables belonging to the job they're working on (incl. the output collection variable
+at that time). The job workers complete the jobs and provide all received variables in the complete
+job message. As a result the broker will write (and overwrite) all of those variables. When the
+service task completes, its result is collected in the output collection variable, but this has
+become a race condition where each completed job again overwrites this same variable. We end up with
+a corrupted output collection.
+
+We recommend taking care when writing variables in a parallel flow. Make sure the variables are
+written to the correct [variable scope](/reference/variables.html#variable-scopes) using variable
+mappings and make sure to complete jobs and publish messages only with the minimum required
+variables.
+
+Finally, note that a created workflow instance propagates all variables to its call activity.
+Similar to job completion and message publication, this can lead to race conditions. This behavior
+can be customized by defining output mappings at the call activity. The output mappings are applied
+on completing the call activity.
+
 ## Additional Resources
 
 <details>

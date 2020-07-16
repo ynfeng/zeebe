@@ -42,7 +42,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /** Atomix test. */
@@ -64,7 +63,7 @@ public class AtomixTest extends AbstractAtomixTest {
       CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]))
           .get(30, TimeUnit.SECONDS);
     } catch (final Exception e) {
-      throw e;
+      // do nothing
     }
   }
 
@@ -98,7 +97,6 @@ public class AtomixTest extends AbstractAtomixTest {
 
   /** Tests scaling up a cluster. */
   @Test
-  @Ignore
   public void testScaleUpPersistent() throws Exception {
     final Atomix atomix1 =
         startAtomix(
@@ -116,7 +114,6 @@ public class AtomixTest extends AbstractAtomixTest {
   }
 
   @Test
-  @Ignore
   public void testStopStartConsensus() throws Exception {
     final Atomix atomix1 =
         startAtomix(
@@ -139,7 +136,6 @@ public class AtomixTest extends AbstractAtomixTest {
 
   /** Tests a client joining and leaving the cluster. */
   @Test
-  @Ignore
   public void testClientJoinLeaveConsensus() throws Exception {
     testClientJoinLeave(
         ConsensusProfile.builder()
@@ -204,7 +200,6 @@ public class AtomixTest extends AbstractAtomixTest {
 
   /** Tests a client properties. */
   @Test
-  @Ignore
   public void testClientProperties() throws Exception {
     final List<CompletableFuture<Atomix>> futures = new ArrayList<>();
     futures.add(

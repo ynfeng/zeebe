@@ -200,6 +200,15 @@ pipeline {
             }
 
             post {
+                always {
+                    jacoco(
+                          execPattern: '**/*.exec',
+                          classPattern: '**/target/classes',
+                          sourcePattern: '**/src/main/java',
+                          exclusionPattern: '**/src/test*',
+                          runAlways: true
+                    )
+                }
                 failure {
                     zip zipFile: 'test-reports.zip', archive: true, glob: "**/*/surefire-reports/**"
 

@@ -116,6 +116,7 @@ public class AtomixTest extends AbstractAtomixTest {
   }
 
   @Test
+  @Ignore
   public void testStopStartConsensus() throws Exception {
     final Atomix atomix1 =
         startAtomix(

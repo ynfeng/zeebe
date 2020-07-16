@@ -34,7 +34,7 @@ Input mappings can be used to create new local variables in the scope of the cal
 
 By default, all variables of the created workflow instance are propagated to the call activity. This behavior can be customized by defining output mappings at the call activity. The output mappings are applied on completing the call activity.
 This is especially important in the case of a call activity in a parallel flow (e.g. marked as
-[parallel multi-instance](bpmn-workflows/multi-instance/multi-instance.html#concurrency-considerations)).
+[parallel multi-instance](/bpmn-workflows/multi-instance/multi-instance.html#concurrency-considerations)).
 
 ## Additional Resources
 

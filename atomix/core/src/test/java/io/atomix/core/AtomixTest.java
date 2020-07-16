@@ -138,6 +138,7 @@ public class AtomixTest extends AbstractAtomixTest {
 
   /** Tests a client joining and leaving the cluster. */
   @Test
+  @Ignore
   public void testClientJoinLeaveConsensus() throws Exception {
     testClientJoinLeave(
         ConsensusProfile.builder()

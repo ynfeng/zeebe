@@ -691,11 +691,14 @@ public class NettyMessagingService implements ManagedMessagingService {
                       serverChannel = f.channel();
                       bind(bootstrap, ifaces, port, future);
                     } else {
-                      log.warn(
-                          "Failed to bind TCP server to port {}:{} due to {}",
-                          iface,
-                          port,
-                          f.cause());
+                      System.out.println(
+                          "Failed to bind TCP server to port {"
+                              + iface
+                              + " }:{"
+                              + port
+                              + "} due to {"
+                              + f.cause()
+                              + "}");
                       future.completeExceptionally(f.cause());
                     }
                   });

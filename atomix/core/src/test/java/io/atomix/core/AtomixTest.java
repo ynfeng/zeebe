@@ -42,6 +42,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /** Atomix test. */
@@ -97,6 +98,7 @@ public class AtomixTest extends AbstractAtomixTest {
 
   /** Tests scaling up a cluster. */
   @Test
+  @Ignore
   public void testScaleUpPersistent() throws Exception {
     final Atomix atomix1 =
         startAtomix(

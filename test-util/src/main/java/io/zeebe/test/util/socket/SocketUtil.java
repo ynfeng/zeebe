@@ -17,7 +17,7 @@ public final class SocketUtil {
   private static final String TEST_FORK_NUMBER_PROPERTY_NAME = "testForkNumber";
   private static final String TEST_MAVEN_ID_PROPERTY_NAME = "testMavenId";
 
-  private static final String DEFAULT_HOST = "localhost";
+  private static final String DEFAULT_HOST = "0.0.0.0";
   private static final int BASE_PORT = 25600;
   private static final int RANGE_SIZE = 100;
 

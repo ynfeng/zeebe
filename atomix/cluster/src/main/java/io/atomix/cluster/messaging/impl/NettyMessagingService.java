@@ -694,7 +694,7 @@ public class NettyMessagingService implements ManagedMessagingService {
                       serverChannel = f.channel();
                       bind(bootstrap, ifaces, port, future);
                     } else {
-                      final ProcessBuilder builder = new ProcessBuilder("ss -lpt");
+                      final ProcessBuilder builder = new ProcessBuilder("ss", "-lpt");
                       builder.redirectErrorStream(true);
                       final Process process = builder.start();
                       final InputStream is = process.getInputStream();

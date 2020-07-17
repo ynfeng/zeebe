@@ -50,8 +50,12 @@ class PortRange implements Iterator<InetSocketAddress> {
     } while (!portAvailable(next));
 
     SocketUtil.LOG.info(
-        "Choosing next port {} for test fork {} with range {} for process {} and thread {}", next,
-        forkNumber, this, ProcessHandle.current().pid(), Thread.currentThread().getId());
+        "Choosing next port {} for test fork {} with range {} for process {} and thread {}",
+        next,
+        forkNumber,
+        this,
+        ProcessHandle.current().pid(),
+        Thread.currentThread().getId());
     return next;
   }
 

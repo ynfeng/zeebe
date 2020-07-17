@@ -55,8 +55,11 @@ import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.concurrent.Future;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.security.Key;
 import java.security.KeyStore;
@@ -691,6 +694,18 @@ public class NettyMessagingService implements ManagedMessagingService {
                       serverChannel = f.channel();
                       bind(bootstrap, ifaces, port, future);
                     } else {
+                      ProcessBuilder builder = new ProcessBuilder("ss -lpt");
+                      builder.redirectErrorStream(true);
+                      Process process = builder.start();
+                      InputStream is = process.getInputStream();
+                      BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+                      System.out.println("Port dump:");
+                      String line = null;
+                      while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                      }
+
                       log.warn(
                           "Failed to bind TCP server to port {}:{} due to {}",
                           iface,

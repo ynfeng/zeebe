@@ -89,8 +89,11 @@ import javax.net.ssl.TrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Netty based MessagingService. */
+/**
+ * Netty based MessagingService.
+ */
 public class NettyMessagingService implements ManagedMessagingService {
+
   protected boolean enableNettyTls;
   protected TrustManagerFactory trustManager;
   protected KeyManagerFactory keyManager;
@@ -675,7 +678,7 @@ public class NettyMessagingService implements ManagedMessagingService {
    * @param ifaces an iterator of interfaces to which to bind
    * @param port the port to which to bind
    * @param future the future to completed once the bootstrap has been bound to all provided
-   *     interfaces
+   * interfaces
    */
   private void bind(
       final ServerBootstrap bootstrap,
@@ -700,6 +703,9 @@ public class NettyMessagingService implements ManagedMessagingService {
                       final InputStream is = process.getInputStream();
                       final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
+                      System.out.println(
+                          "Current pid: " + ProcessHandle.current().pid() + " thread id: " + Thread
+                              .currentThread().getId());
                       System.out.println("Port dump:");
                       String line = null;
                       while ((line = reader.readLine()) != null) {
@@ -719,8 +725,11 @@ public class NettyMessagingService implements ManagedMessagingService {
     }
   }
 
-  /** Channel initializer for TLS clients. */
+  /**
+   * Channel initializer for TLS clients.
+   */
   private class SslClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+
     private final CompletableFuture<Channel> future;
     private final Address address;
     private final SslContext sslContext;
@@ -742,8 +751,11 @@ public class NettyMessagingService implements ManagedMessagingService {
     }
   }
 
-  /** Channel initializer for TLS servers. */
+  /**
+   * Channel initializer for TLS servers.
+   */
   private final class SslServerChannelInitializer extends ChannelInitializer<SocketChannel> {
+
     private final SslContext sslContext;
 
     private SslServerChannelInitializer() throws SSLException {
@@ -763,8 +775,11 @@ public class NettyMessagingService implements ManagedMessagingService {
     }
   }
 
-  /** Channel initializer for basic connections. */
+  /**
+   * Channel initializer for basic connections.
+   */
   private class BasicClientChannelInitializer extends ChannelInitializer<SocketChannel> {
+
     private final CompletableFuture<Channel> future;
 
     BasicClientChannelInitializer(final CompletableFuture<Channel> future) {
@@ -777,15 +792,20 @@ public class NettyMessagingService implements ManagedMessagingService {
     }
   }
 
-  /** Channel initializer for basic connections. */
+  /**
+   * Channel initializer for basic connections.
+   */
   private class BasicServerChannelInitializer extends ChannelInitializer<SocketChannel> {
+
     @Override
     protected void initChannel(final SocketChannel channel) throws Exception {
       channel.pipeline().addLast("handshake", new ServerHandshakeHandlerAdapter());
     }
   }
 
-  /** Base class for handshake handlers. */
+  /**
+   * Base class for handshake handlers.
+   */
   private abstract class HandshakeHandlerAdapter<M extends ProtocolMessage>
       extends ChannelInboundHandlerAdapter {
 
@@ -842,8 +862,11 @@ public class NettyMessagingService implements ManagedMessagingService {
     }
   }
 
-  /** Client handshake handler. */
+  /**
+   * Client handshake handler.
+   */
   private class ClientHandshakeHandlerAdapter extends HandshakeHandlerAdapter<ProtocolReply> {
+
     private final CompletableFuture<Channel> future;
 
     ClientHandshakeHandlerAdapter(final CompletableFuture<Channel> future) {
@@ -900,8 +923,11 @@ public class NettyMessagingService implements ManagedMessagingService {
     }
   }
 
-  /** Server handshake handler. */
+  /**
+   * Server handshake handler.
+   */
   private class ServerHandshakeHandlerAdapter extends HandshakeHandlerAdapter<ProtocolRequest> {
+
     @Override
     public void channelRead(final ChannelHandlerContext context, final Object message)
         throws Exception {
@@ -936,9 +962,12 @@ public class NettyMessagingService implements ManagedMessagingService {
     }
   }
 
-  /** Connection message dispatcher. */
+  /**
+   * Connection message dispatcher.
+   */
   private class MessageDispatcher<M extends ProtocolMessage>
       extends SimpleChannelInboundHandler<Object> {
+
     private final Connection<M> connection;
 
     MessageDispatcher(final Connection<M> connection) {

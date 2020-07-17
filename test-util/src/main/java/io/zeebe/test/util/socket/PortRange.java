@@ -13,6 +13,7 @@ import java.net.ServerSocket;
 import java.util.Iterator;
 
 class PortRange implements Iterator<InetSocketAddress> {
+
   private final String host;
   private final int basePort;
   private final int maxOffset;
@@ -49,7 +50,8 @@ class PortRange implements Iterator<InetSocketAddress> {
     } while (!portAvailable(next));
 
     SocketUtil.LOG.info(
-        "Choosing next port {} for test fork {} with range {}", next, forkNumber, this);
+        "Choosing next port {} for test fork {} with range {} for process {} and thread {}", next,
+        forkNumber, this, ProcessHandle.current().pid(), Thread.currentThread().getId());
     return next;
   }
 

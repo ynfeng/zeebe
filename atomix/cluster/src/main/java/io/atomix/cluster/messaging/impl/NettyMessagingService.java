@@ -694,11 +694,11 @@ public class NettyMessagingService implements ManagedMessagingService {
                       serverChannel = f.channel();
                       bind(bootstrap, ifaces, port, future);
                     } else {
-                      ProcessBuilder builder = new ProcessBuilder("ss -lpt");
+                      final ProcessBuilder builder = new ProcessBuilder("ss -lpt");
                       builder.redirectErrorStream(true);
-                      Process process = builder.start();
-                      InputStream is = process.getInputStream();
-                      BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                      final Process process = builder.start();
+                      final InputStream is = process.getInputStream();
+                      final BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
                       System.out.println("Port dump:");
                       String line = null;

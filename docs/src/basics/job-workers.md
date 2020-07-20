@@ -68,10 +68,9 @@ After working on an activated job, a job worker should send a complete or fail m
 broker. If the job is not completed within the configured job activation timeout then the broker
 will make the job available again to other job workers.
 
-Sometimes a job worker may wish to alter workflow variables when completing a job. A complete job
-message containing variables will result in the broker writing those variables to the workflow
-instance. Note that this will overwrite existing variables and may lead to race conditions in
-parallel flows. We recommend completing parallelized jobs with only those variables that need to be
+In order to expose the results of the job, the job worker can pass variables with the complete command. These variables will be merged into the workflow instance depending on the output variable mapping. 
+Note that this may overwrite existing variables and can lead to race conditions in
+parallel flows. We recommend completing jobs with only those variables that need to be
 changed.
 
 If the job worker could not successfully complete its work, it can inform the broker of this failure

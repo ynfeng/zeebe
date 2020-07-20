@@ -63,7 +63,7 @@ Zeebe decouples creation of jobs from performing the work on them. It is always 
 
 This allows the broker to handle bursts of traffic and effectively act as a _buffer_ in front of the job workers.
 
-## Completing and failing jobs
+## Completing and Failing Jobs
 After working on an activated job, a job worker should send a complete or fail message to the
 broker. If the job is not completed within the configured job activation timeout then the broker
 will make the job available again to other job workers.

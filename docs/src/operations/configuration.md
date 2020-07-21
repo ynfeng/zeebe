@@ -55,37 +55,22 @@ When it comes to editing individual settings two data types are worth mentioning
 
 ## Passing configuration file to Zeebe
 
-The configuration file can be passed to Zeebe either by adhering to naming conventions, or by explicitly specifying the configuration file through an environment variable or via a command line argument when launching Zeebe.
-
-*Naming conventions*
-
 Rename the configuration file to `application.yaml` and place it in the following location:
 ```shell script
 ./config/application.yaml
 ```
 
-*Environment Variable*
-
-Rename the configuration file to `*.yaml` and set an environment variable to point to the configuration file:
-```shell script
-export SPRING_CONFIG_LOCATION='file:./[path to config file]'
-```
-
-*Command line argument*
-
-Rename the configuration file to `*.yaml` and add a command line argument to point to the configuration file:
-```shell script
-./bin/broker --spring.config.location=file:./[path to config file]
-
-or
-
-./bin/gateway --spring.config.location=file:./[path to config file]
-```
-
-
-*Misc*
+*Other ways to specify the configuration file*
 
 Zeebe uses Spring Boot for its configuration parsing. So all other ways to [configure a Spring Boot application](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config) should also work.
+
+If you specify `SPRING_CONFIG_LOCATION` either as command line argument, or as environment variable, then specify it like this:
+
+```shell script
+export SPRING_CONFIG_LOCATION='classpath:/,file:./[path to config file]'
+```
+This will ensure that the defaults defined in the classpath resources will be used as a fallback - unless overwritten by the configuration you provide.
+
 
 ## Verifying that configuration was applied
 To verify that the configuration was applied, start Zeebe and look at the log.
